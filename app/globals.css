@@ -96,12 +96,6 @@ body {
 }
 
 /* Responsive design improvements */
-@media (max-width: 1024px) {
-  .kanban-board {
-    width: 100% !important;
-  }
-}
-
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;

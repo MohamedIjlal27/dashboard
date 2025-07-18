@@ -77,10 +77,10 @@ export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full min-h-0 flex-1 w-full">
-        <div className="bg-white border border-[#e6e8ec] rounded-lg h-full min-h-0 flex flex-col w-full max-w-none kanban-board" style={{ width: 'calc(100vw - 16rem)' }}>
+      <div className="h-full w-full min-w-0 bg-red-100">
+        <div className="bg-white border border-[#e6e8ec] rounded-lg h-full flex flex-col w-full min-w-0 kanban-board">
           {/* Table Header Row */}
-          <div className="flex border-b border-[#e6e8ec] kanban-columns">
+          <div className="flex border-b border-[#e6e8ec] kanban-columns w-full min-w-0">
             {filteredColumns.map((column, index) => (
               <ColumnHeader
                 key={column.id}
@@ -91,7 +91,7 @@ export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
           </div>
 
           {/* Column Content Areas */}
-          <div className="flex flex-1 min-h-0 kanban-columns">
+          <div className="flex flex-1 kanban-columns w-full min-w-0">
             {filteredColumns.map((column, index) => (
               <DroppableTaskColumn
                 key={column.id}

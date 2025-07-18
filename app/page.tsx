@@ -8,11 +8,11 @@ import { KanbanBoard } from "@/components/KanbanBoard"
 export default function Dashboard() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-[#ffffff]">
+      <div className="flex h-screen bg-[#ffffff] overflow-hidden w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden w-full min-w-0">
           <DashboardHeader />
-          <main className="flex-1 w-full">
+          <main className="flex-1 w-full overflow-auto min-w-0">
             <ProjectHeader />
             <KanbanBoard />
           </main>
