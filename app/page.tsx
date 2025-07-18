@@ -13,7 +13,10 @@ export default function Dashboard() {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <DashboardHeader />
-         
+          <main className="flex-1 w-full">
+            <ProjectHeader />
+            <KanbanBoard taskColumns={taskColumns} />
+          </main>
         </div>
       </div>
     </SidebarProvider>
