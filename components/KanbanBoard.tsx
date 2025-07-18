@@ -1,56 +1,111 @@
 "use client"
-import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Plus } from "lucide-react"
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import { useState } from "react"
+import { ColumnHeader } from "./ColumnHeader"
+import { DroppableTaskColumn } from "./DroppableTaskColumn"
 import { TaskCard } from "./TaskCard"
 import { TaskColumn } from "@/lib/data"
+import { useTaskStore } from "@/lib/store"
 
 interface KanbanBoardProps {
-  taskColumns: TaskColumn[]
+  taskColumns?: TaskColumn[]
 }
 
 export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
-  return (
-    <div className="h-full min-h-0 flex-1 w-full">
-      <div className="bg-white border border-[#e6e8ec] rounded-lg h-full min-h-0 flex flex-col w-full max-w-none" style={{ width: 'calc(100vw - 16rem)' }}>
-        {/* Table Header Row */}
-        <div className="flex border-b border-[#e6e8ec]">
-          {taskColumns.map((column, index) => (
-            <div
-              key={column.id}
-              className={`flex items-center justify-between p-6 flex-1 ${
-                index < taskColumns.length - 1 ? "border-r border-[#e6e8ec]" : ""
-              }`}
-            >
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="w-6 h-6 hover:bg-gray-50">
-                  <Plus className="w-3 h-3 text-[#777e90]" />
-                </Button>
-                <Button variant="ghost" size="icon" className="w-6 h-6 hover:bg-gray-50">
-                  <MoreHorizontal className="w-3 h-3 text-[#777e90]" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+  const { moveTask, getFilteredTasks, taskColumns: storeTaskColumns } = useTaskStore()
+  const [activeTask, setActiveTask] = useState<any>(null)
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  )
 
-        {/* Column Content Areas */}
-        <div className="flex flex-1 min-h-0">
-          {taskColumns.map((column, index) => (
-            <div
-              key={column.id}
-              className={`bg-[#f4f5f6] p-6 flex flex-col min-h-0 flex-1 ${
-                index < taskColumns.length - 1 ? "border-r border-[#e6e8ec]" : ""
-              }`}
-            >
-              <div className="flex-1 overflow-y-auto">
-                {column.tasks.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </div>
-            </div>
-          ))}
+  const filteredColumns = getFilteredTasks()
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event
+    console.log('Drag start:', active.id)
+    
+    const taskId = parseInt(active.id.toString().replace('task-', ''))
+    const task = storeTaskColumns
+      .flatMap(col => col.tasks)
+      .find(t => t.id === taskId)
+    
+    if (task) {
+      setActiveTask(task)
+      console.log('Active task:', task)
+    }
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    console.log('Drag end:', { active: active.id, over: over?.id })
+    
+    if (!over) {
+      setActiveTask(null)
+      return
+    }
+
+    const taskId = parseInt(active.id.toString().replace('task-', ''))
+    const fromColumnId = storeTaskColumns.find(col => col.tasks.some(t => t.id === taskId))?.id
+    const toColumnId = over.id.toString().replace('column-', '')
+    
+    console.log('Moving task:', { taskId, fromColumnId, toColumnId })
+    
+    if (fromColumnId && toColumnId && fromColumnId !== toColumnId) {
+      console.log('Executing moveTask')
+      moveTask(taskId, fromColumnId, toColumnId)
+    }
+    
+    setActiveTask(null)
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="h-full min-h-0 flex-1 w-full">
+        <div className="bg-white border border-[#e6e8ec] rounded-lg h-full min-h-0 flex flex-col w-full max-w-none kanban-board" style={{ width: 'calc(100vw - 16rem)' }}>
+          {/* Table Header Row */}
+          <div className="flex border-b border-[#e6e8ec] kanban-columns">
+            {filteredColumns.map((column, index) => (
+              <ColumnHeader
+                key={column.id}
+                column={column}
+                isLast={index === filteredColumns.length - 1}
+              />
+            ))}
+          </div>
+
+          {/* Column Content Areas */}
+          <div className="flex flex-1 min-h-0 kanban-columns">
+            {filteredColumns.map((column, index) => (
+              <DroppableTaskColumn
+                key={column.id}
+                column={column}
+                isLast={index === filteredColumns.length - 1}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      
+      <DragOverlay>
+        {activeTask ? <TaskCard task={activeTask} /> : null}
+      </DragOverlay>
+    </DndContext>
   )
 } 

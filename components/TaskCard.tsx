@@ -1,12 +1,12 @@
-"use client"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  AlertTriangle, 
-  Calendar, 
-  Link2, 
-  MessageSquare, 
-  MoreHorizontal 
+import {
+  Link2,
+  MessageSquare,
+  MoreHorizontal,
+  Eye,
+  AlertTriangle,
+  Calendar,
 } from "lucide-react"
 import { Task } from "@/lib/data"
 
@@ -42,7 +42,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
         {task.hasImage && (
           <div className="w-full h-24 bg-[#353945] rounded-md mb-3 flex items-center justify-center">
-            <div className="w-4 h-4 text-[#777e90]" />
+            <Eye className="w-4 h-4 text-[#777e90]" />
           </div>
         )}
 

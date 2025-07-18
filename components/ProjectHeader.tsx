@@ -1,6 +1,6 @@
-"use client"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
 
 export function ProjectHeader() {
@@ -8,6 +8,7 @@ export function ProjectHeader() {
     <div className="p-6 pb-0">
       <div className="flex items-center gap-3 mb-2">
         <h1 className="text-2xl font-bold text-[#141416]">Sport Xi Project</h1>
+        <Badge className="bg-[#ffa800] text-black px-3 py-1 text-xs font-medium rounded-md">In progress</Badge>
       </div>
       <p className="text-[#777e90] mb-6 text-base">event production</p>
       <div className="flex items-center gap-6 mb-6">
