@@ -13,15 +13,19 @@ import { ColumnHeader } from "./ColumnHeader"
 import { DroppableTaskColumn } from "./DroppableTaskColumn"
 import { TaskCard } from "./TaskCard"
 import { TaskColumn } from "@/lib/data"
-import { useTaskStore } from "@/lib/store"
+import { useTaskColumns, useMoveTask, useSearchTasks } from "@/lib/query-service"
+import { useSearch } from "@/lib/search-context"
 
 interface KanbanBoardProps {
   taskColumns?: TaskColumn[]
 }
 
 export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
-  const { moveTask, getFilteredTasks, taskColumns: storeTaskColumns } = useTaskStore()
+  const { data: storeTaskColumns = [], isLoading, error } = useTaskColumns()
+  const moveTaskMutation = useMoveTask()
   const [activeTask, setActiveTask] = useState<any>(null)
+  const { searchQuery } = useSearch()
+  const { data: searchResults } = useSearchTasks(searchQuery)
   
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -31,7 +35,8 @@ export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
     })
   )
 
-  const filteredColumns = getFilteredTasks()
+  // Use search results if there's a search query, otherwise use provided taskColumns or fall back to query data
+  const columnsToUse = searchQuery ? (searchResults || storeTaskColumns) : (taskColumns || storeTaskColumns)
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
@@ -65,10 +70,26 @@ export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
     
     if (fromColumnId && toColumnId && fromColumnId !== toColumnId) {
       console.log('Executing moveTask')
-      moveTask(taskId, fromColumnId, toColumnId)
+      moveTaskMutation.mutate({ taskId, fromColumnId, toColumnId })
     }
     
     setActiveTask(null)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="h-full w-full min-w-0 bg-red-100 flex items-center justify-center">
+        <div className="text-lg">Loading tasks...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="h-full w-full min-w-0 bg-red-100 flex items-center justify-center">
+        <div className="text-lg text-red-600">Error loading tasks: {error.message}</div>
+      </div>
+    )
   }
 
   return (
@@ -81,22 +102,22 @@ export function KanbanBoard({ taskColumns }: KanbanBoardProps) {
         <div className="bg-white border border-[#e6e8ec] rounded-lg h-full flex flex-col w-full min-w-0 kanban-board">
           {/* Table Header Row */}
           <div className="flex border-b border-[#e6e8ec] kanban-columns w-full min-w-0">
-            {filteredColumns.map((column, index) => (
+            {columnsToUse.map((column, index) => (
               <ColumnHeader
                 key={column.id}
                 column={column}
-                isLast={index === filteredColumns.length - 1}
+                isLast={index === columnsToUse.length - 1}
               />
             ))}
           </div>
 
           {/* Column Content Areas */}
           <div className="flex flex-1 kanban-columns w-full min-w-0">
-            {filteredColumns.map((column, index) => (
+            {columnsToUse.map((column, index) => (
               <DroppableTaskColumn
                 key={column.id}
                 column={column}
-                isLast={index === filteredColumns.length - 1}
+                isLast={index === columnsToUse.length - 1}
               />
             ))}
           </div>

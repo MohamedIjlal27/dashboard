@@ -1,19 +1,15 @@
-import type { Metadata } from 'next'
 import './globals.css'
+import { Providers } from './providers'
+import Dashboard from './page'
 
-export const metadata: Metadata = {
-  title: 'Board Dashboard',
-  description: 'A modern dashboard application',
-}
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout() {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <Dashboard />
+        </Providers>
+      </body>
     </html>
   )
 }

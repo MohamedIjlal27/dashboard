@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Disable Next.js routing since we're using TanStack Router
+  experimental: {
+    appDir: true,
+  },
 }
 
 export default nextConfig

@@ -3,10 +3,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Settings } from "lucide-react"
-import { useTaskStore } from "@/lib/store"
+import { useSearch } from "@/lib/search-context"
 
 export function DashboardHeader() {
-  const { searchQuery, setSearchQuery } = useTaskStore()
+  const { searchQuery, setSearchQuery } = useSearch()
 
   return (
     <header className="border-b border-[#e6e8ec] p-4 dashboard-header">
